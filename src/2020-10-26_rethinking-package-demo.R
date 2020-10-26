@@ -99,7 +99,7 @@ flist3 <-
     alist(
         height ~ dnorm(mu, sig), 
         mu ~ a + b*(weight_obs - mean(df2$weight)),   # weight values are centered (mean = 0) 
-        weight_obs ~ dnorm(weight, 5),  # todo: sd param is just made up 
+        weight_obs ~ dnorm(weight, 10),  # todo: sd param is just made up 
         weight ~ dunif(20, 100),   
         a ~ dnorm(178, 20), 
         b ~ dlnorm(0,1), 
@@ -134,5 +134,49 @@ pred_interval2
 
 # This gives a prediction interval that should contain the stated proportion of 
 # future height values. 
+
+
+
+
+#****************************************************************************
+# Example 4: ----------
+
+# > set up simulated data as an example: -----
+df3_parts <- 
+    tibble(p1 = runif(10), 
+           p2 = runif(10), 
+           orders = rpois(10, 50), 
+           total_qty = rpois(10, 100))
+
+df3_parts
+
+# > define model: -----
+flist4 <- 
+    alist(
+        total_qty ~ dpois(lambda_qty), 
+        orders ~ dnorm(mu_orders, sd_orders), 
+        mu_orders ~ dunif(40, 55), 
+        sd_orders ~ dunif(0, 10), 
+        lambda_qty ~ dunif(10, 200)
+    )
+
+# fit model to get posterior: 
+m4_parts <- quap(flist4, data = df3_parts) 
+
+
+# > summaries of the posterior ------ 
+precis(m4_parts)
+
+# > samples from the posterior ------
+post_samples4 <- extract.samples(m4_parts, 1000) 
+
+# > data for prediction interval ----- 
+sim_qty <- rpois(1000, lambda = post_samples4$lambda_qty)
+hist(sim_qty)
+
+qty_pred_interval <- quantile(sim_qty, c(.05, .95))
+qty_pred_interval
+
+
 
 
