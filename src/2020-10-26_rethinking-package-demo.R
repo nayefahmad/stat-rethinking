@@ -98,9 +98,9 @@ pred_interval2
 flist3 <- 
     alist(
         height ~ dnorm(mu, sig), 
-        mu ~ a + b*(weight - mean(df2$weight)),   # weight values are centered (mean = 0) 
-        weight_obs ~ dnorm(weight, 5), 
-        weight ~ dnorm(40, 10),   
+        mu ~ a + b*(weight_obs - mean(df2$weight)),   # weight values are centered (mean = 0) 
+        weight_obs ~ dnorm(weight, 5),  # todo: sd param is just made up 
+        weight ~ dunif(20, 100),   
         a ~ dnorm(178, 20), 
         b ~ dlnorm(0,1), 
         sig ~ dunif(0, 50)
@@ -111,7 +111,6 @@ m3 <- quap(flist3, data=df2)
 
 
 # > summaries of the posterior ------ 
-summary(m3)
 precis(m3)
 
 # compare with m2: 
@@ -129,6 +128,9 @@ hist(sim_heights3)
 
 pred_interval3 <- quantile(sim_heights3, c(.05, .95))
 pred_interval3
+
+# comparison: 
+pred_interval2
 
 # This gives a prediction interval that should contain the stated proportion of 
 # future height values. 
